@@ -7,9 +7,14 @@ const Scanner = () => {
   const [imageData, setImageData] = useState(null);
 
   const startCamera = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("Votre navigateur ne supporte pas l'accès à la caméra.");
+      return;
+    }
+  
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user' },
+        video: { facingMode: { exact: 'environment' } }, // 'exact' demande spécifiquement la caméra arrière
       });
       videoRef.current.srcObject = stream;
       videoRef.current.onloadedmetadata = () => {
@@ -17,15 +22,18 @@ const Scanner = () => {
         setIsCameraOn(true);
       };
     } catch (err) {
-      console.error("Error accessing camera:", err);
+      console.error("Erreur d'accès à la caméra :", err);
+      alert("Impossible d'accéder à la caméra arrière. Vérifiez les paramètres de votre appareil.");
     }
   };
+  
+  
 
   const stopCamera = () => {
     const stream = videoRef.current?.srcObject;
     if (stream) {
-      stream.getTracks().forEach(track => track.stop()); // Stop each track in the stream
-      videoRef.current.srcObject = null; // Clear video source
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
       setIsCameraOn(false);
     }
   };
@@ -40,12 +48,11 @@ const Scanner = () => {
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Convert canvas to Blob and stop the video
       canvas.toBlob((blob) => {
-        setImageData(blob); // Save the blob to state
+        setImageData(blob);
       }, 'image/jpeg');
       
-      stopCamera(); // Stop the camera stream after taking the picture
+      stopCamera();
     }
   };
 
@@ -67,7 +74,8 @@ const Scanner = () => {
         console.error('Image upload failed');
       }
     } catch (err) {
-      console.error("Error sending image to API:", err);
+      console.error("Erreur lors de l'envoi de l'image à l'API :", err);
+      alert("Échec de l'envoi de l'image. Veuillez réessayer.");
     }
   };
 
@@ -75,29 +83,34 @@ const Scanner = () => {
     <section id="scanner" className="w-screen min-h-screen">
       <div className="max-container flex justify-center items-center gap-0 padding-hero-y padding-x h-full max-xl:gap-7 max-lg:flex-col">
         <div className="flex-1 w-full">
-        <div className=' my-1 text-5xl leading-[60px] font-semibold text-black max-xl:text-4xl max-xl:my-4 max-lg:my-7 max-lg:text-5xl max-lg:leading-[60px] max-sm:text-3xl'>
-            <p className=' text-[#f04e3c] relative before:absolute before:w-20 before:h-1 before:bg-[#f04e3c] before:top-[50%] before:left-0 pl-24 text-2xl before:translate-y-[-50%]'>FOOD SCANNER</p>
-            <h1>SCAN YOUR FOOD HERE</h1> 
-            <button onClick={startCamera} className="py-2 px-5 text-xl group relative text-white bg-[orangered] rounded-sm">
-            Start Camera
-            </button>
-        </div>
+          <div className='my-1 text-5xl leading-[60px] font-semibold text-black max-xl:text-4xl max-xl:my-4 max-lg:my-7 max-lg:text-5xl max-lg:leading-[60px] max-sm:text-3xl'>
+            <p className='text-[#f04e3c] relative before:absolute before:w-20 before:h-1 before:bg-[#f04e3c] before:top-[50%] before:left-0 pl-24 text-2xl before:translate-y-[-50%]'>FOOD SCANNER</p>
+            <h1>SCAN YOUR FOOD HERE</h1>
+            {!isCameraOn && (
+              <button onClick={startCamera} className="py-2 px-5 text-xl group relative text-white bg-[orangered] rounded-sm">
+                Start Camera
+              </button>
+            )}
+          </div>
           <video
             ref={videoRef}
             autoPlay
             className="object-cover object-center max-lg:w-full"
             style={{ display: isCameraOn ? 'block' : 'none' }}
           ></video>
-          {/* Display canvas as the snapshot after picture is taken */}
-          <canvas ref={canvasRef} className="object-cover object-center max-lg:w-full" style={{ display: isCameraOn ? 'none' : 'block' }}></canvas>
+          <canvas ref={canvasRef} className="object-cover object-center max-lg:w-full" style={{ display: imageData ? 'block' : 'none' }}></canvas>
         </div>
         <div>
-          <button onClick={takePicture} disabled={!isCameraOn} className="py-4 px-4 text-xl group relative text-white bg-[orangered] rounded-sm">
-            Take Picture
-          </button>
-          <button onClick={sendImageToAPI} disabled={!imageData} className="py-4 px-4 mx-2 text-xl group relative text-white bg-[orangered] rounded-sm">
-            Send to API
-          </button>
+          {isCameraOn && (
+            <button onClick={takePicture} className="py-4 px-4 text-xl group relative text-white bg-[orangered] rounded-sm">
+              Take Picture
+            </button>
+          )}
+          {imageData && (
+            <button onClick={sendImageToAPI} className="py-4 px-4 mx-2 text-xl group relative text-white bg-[orangered] rounded-sm">
+              Send to API
+            </button>
+          )}
         </div>
       </div>
     </section>
