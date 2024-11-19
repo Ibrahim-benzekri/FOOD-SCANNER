@@ -1,6 +1,4 @@
 import React from 'react'
-import img from "../assets/img-11.jpg"
-
 const Contact = () => {
   return (
     <section id='contact' className=' w-full'>

@@ -1,11 +1,4 @@
 import React from 'react'
-import { footer } from '../Data/Data'
-import logo from "../assets/logo-2.png"
-
-import {BiLogoFacebook} from "react-icons/bi"
-import {BsTwitter} from "react-icons/bs"
-import {FaGlobe} from "react-icons/fa6"
-import {BsInstagram} from "react-icons/bs"
 
 import {TbArrowBigUpFilled} from "react-icons/tb"
 

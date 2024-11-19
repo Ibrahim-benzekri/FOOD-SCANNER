@@ -5,6 +5,7 @@ import Scanner from './Components/Scanner'
 import Contact from './Components/Contact'
 import Footer from './Components/Footer'
 import HeroSection from './Components/HeroSection'
+import Payment from './Components/payment'
 
 const App = () => {
 
@@ -28,6 +29,7 @@ const App = () => {
         <About />
         <Scanner />
         <Contact />
+        <Payment/>
         <Footer nav={nav}/>
     </div>
   )
