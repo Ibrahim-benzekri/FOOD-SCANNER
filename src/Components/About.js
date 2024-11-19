@@ -1,7 +1,8 @@
 import React from 'react'
 import img from "../assets/img-6.jpg"
-
+import { useNavigate } from 'react-router-dom'
 const About = () => {
+  const navigate = useNavigate();
   return (
     <section id='about' className=' w-screen min-h-screen'>
       <div className=' max-container flex justify-center items-center gap-8 padding-hero-y padding-x h-full max-xl:gap-7 max-lg:flex-col'>
@@ -25,7 +26,7 @@ const About = () => {
           With our scanning tool and tailored meal recommendations, we help you achieve your wellness goals effortlessly. Enjoy the food you love in a healthy, balanced way.
           </p>
 
-          <button className=' py-4 px-9 text-xl group relative text-white bg-[orangered] rounded-sm'>
+          <button onClick={()=>{navigate("/subscription")}} className=' py-4 px-9 text-xl group relative text-white bg-[orangered] rounded-sm'>
             <div className=' buttonDiv'></div>
             <span className='buttonSpan'>GET PREMIUM</span>
           </button>

@@ -3,9 +3,10 @@ import logo from "../assets/logo-2.png"
 import { navLinks } from '../Data/Data'
 import {FiMenu} from "react-icons/fi"
 import {IoClose} from "react-icons/io5"
+import { useNavigate } from 'react-router-dom'
 
-const Nav = ({nav}) => {
-
+const Nav = ({nav,bar}) => {
+const navigate = useNavigate();
   const [openNav,setOpenNav] = useState(false)
 
   return (
@@ -16,7 +17,9 @@ const Nav = ({nav}) => {
           FITNESS SCANNER
         </a>
 
-        <ul className=' flex flex-1 justify-end gap-10 max-xl:gap-7 max-lg:flex-col max-lg:bg-stone-700 max-lg:text-white max-lg:pt-10 max-lg:pb-3 max-lg:px-4 max-lg:gap-4 max-lg:absolute max-lg: max-lg:top-24 max-lg:left-[5%] max-lg:w-[90%] max-lg:z-20 max-sm:top-20'>
+        {bar ? (
+          <>
+          <ul className=' flex flex-1 justify-end gap-10 max-xl:gap-7 max-lg:flex-col max-lg:bg-stone-700 max-lg:text-white max-lg:pt-10 max-lg:pb-3 max-lg:px-4 max-lg:gap-4 max-lg:absolute max-lg: max-lg:top-24 max-lg:left-[5%] max-lg:w-[90%] max-lg:z-20 max-sm:top-20'>
           {navLinks.map((val)=>(
             <li key={val.label} className={`text-white font-medium hover:text-red-500 text-xl max-lg:text-lg ${openNav ? "max-lg:block" : "max-lg:hidden"}`}><a href={val.href}>{val.label}</a></li>
           ))}
@@ -25,8 +28,11 @@ const Nav = ({nav}) => {
           {openNav ? <IoClose /> :  <FiMenu />}
         </div>
         </ul>
+          </>
+        ):null}
+        
 
-        <button className=' py-4 px-7 text-xl group relative text-white bg-[orangered] rounded-sm max-lg:hidden'>
+        <button onClick={()=>{navigate("/subscription")}} className=' py-4 px-7 text-xl group relative text-white bg-[orangered] rounded-sm max-lg:hidden'>
           <div className=' buttonDiv'></div>
           <span className='buttonSpan'>Get Premium</span>
         </button>
