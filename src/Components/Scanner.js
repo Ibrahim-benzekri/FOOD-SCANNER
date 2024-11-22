@@ -78,6 +78,99 @@ const Scanner = () => {
       alert("Échec de l'envoi de l'image. Veuillez réessayer.");
     }
   };
+  
+
+  /* Envoyer l'image à Clarifai pour détecter l'aliment et envoyer l'aliment à spoonacular
+  pour les recettes
+  const sendImageToAPI = async () => {
+    if (!imageData) {
+      alert("Aucune image n'a été prise.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', imageData, 'food-image.jpg');
+
+    try {
+      const response = await fetch('https://api.clarifai.com/v2/models/food-item-recognition/outputs', {
+        method: 'POST',
+        headers: {
+          'Authorization': '0a329d795df34782b0bb322295896890', // Remplacez par votre clé API Clarifai
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          inputs: [
+            {
+              data: {
+                image: {
+                  base64: await convertBlobToBase64(imageData),
+                },
+              },
+            },
+          ],
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Données Clarifai :", data);
+
+        if (data.outputs && data.outputs[0].data.concepts.length > 0) {
+          const foodName = data.outputs[0].data.concepts[0].name; // Nom de l'aliment détecté
+          console.log(`Aliment détecté : ${foodName}`);
+          fetchRecipesFromSpoonacular(foodName);
+        } else {
+          alert("Impossible de détecter un aliment dans l'image.");
+        }
+      } else {
+        console.error('Erreur lors de la détection des aliments');
+        alert("Impossible de détecter un aliment.");
+      }
+    } catch (err) {
+      console.error("Erreur lors de la détection des aliments :", err);
+      alert("Échec de l'envoi de l'image. Veuillez réessayer.");
+    }
+  };
+
+  // Convertir un Blob en Base64
+  const convertBlobToBase64 = (blob) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]); // On récupère uniquement la base64
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  // Rechercher des recettes sur Spoonacular
+  const fetchRecipesFromSpoonacular = async (foodName) => {
+    try {
+      const response = await fetch(
+        `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${foodName}&apiKey=YOUR_SPOONACULAR_API_KEY` // Remplacez par votre clé API Spoonacular
+      );
+
+      if (response.ok) {
+        const recipes = await response.json();
+        console.log("Recettes trouvées :", recipes);
+        if (recipes.length > 0) {
+          alert(
+            `Recettes pour ${foodName} :\n${recipes.map((recipe) => recipe.title).join('\n')}`
+          );
+        } else {
+          alert("Aucune recette trouvée pour cet aliment.");
+        }
+      } else {
+        console.error('Erreur lors de la récupération des recettes');
+        alert("Impossible de récupérer des recettes.");
+      }
+    } catch (err) {
+      console.error("Erreur lors de la récupération des recettes :", err);
+      alert("Échec de la récupération des recettes. Veuillez réessayer.");
+    }
+  };
+  */
+
+
 
   return (
     <section id="scanner" className="w-screen min-h-screen">
@@ -118,3 +211,4 @@ const Scanner = () => {
 };
 
 export default Scanner;
+
