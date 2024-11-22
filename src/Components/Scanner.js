@@ -14,7 +14,7 @@ const Scanner = () => {
   
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { exact: 'environment' } }, // 'exact' demande spécifiquement la caméra arrière
+        video: { facingMode: { ideal: 'environment' } }, // 'exact' demande spécifiquement la caméra arrière
       });
       videoRef.current.srcObject = stream;
       videoRef.current.onloadedmetadata = () => {
