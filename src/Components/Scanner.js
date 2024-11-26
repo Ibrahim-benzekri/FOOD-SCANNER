@@ -57,27 +57,37 @@ const Scanner = () => {
   };
 
   const sendImageToAPI = async () => {
-    if (!imageData) return;
+    if (!imageData) {
+        console.error("No image data available.");
+        return;
+    }
+
+    const apiKey = "1d97db56d7614dc8848b50fd19f15f17"; 
+    const apiEndpoint = "https://api.spoonacular.com/food/images/classify";
 
     const formData = new FormData();
-    formData.append('file', imageData, 'snapshot.jpg');
+    formData.append('file', imageData, 'snapshot.jpg'); 
 
     try {
-      const response = await fetch('https://your-api-endpoint.com/upload', {
-        method: 'POST',
-        body: formData,
-      });
+        const response = await fetch(`${apiEndpoint}?apiKey=${apiKey}`, {
+            method: 'POST',
+            body: formData,
+        });
 
-      if (response.ok) {
-        console.log('Image successfully uploaded!');
-      } else {
-        console.error('Image upload failed');
-      }
-    } catch (err) {
-      console.error("Erreur lors de l'envoi de l'image à l'API :", err);
-      alert("Échec de l'envoi de l'image. Veuillez réessayer.");
+        if (!response.ok) {
+            throw new Error(`API request failed with status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("API response:", result);
+
+        
+        console.log(`Category: ${result.category}, Probability: ${result.probability}`);
+    } catch (error) {
+        console.error("Error sending image to Spoonacular API:", error);
     }
-  };
+};
+
   
 
   /* Envoyer l'image à Clarifai pour détecter l'aliment et envoyer l'aliment à spoonacular
