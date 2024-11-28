@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 const Scanner = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [imageData, setImageData] = useState(null);
-
+  const navigate = useNavigate();
   const startCamera = async () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       alert("Votre navigateur ne supporte pas l'accès à la caméra.");
@@ -96,6 +96,10 @@ const Scanner = () => {
   
       const result = await response.json();
       console.log("API response:", result);
+      if(result){
+        navigate("/meal/"+result);
+      }
+      
   
     } catch (error) {
       console.error("Error sending image to Food Recognition API:", error);
