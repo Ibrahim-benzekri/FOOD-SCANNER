@@ -96,15 +96,26 @@ const Scanner = () => {
   
       const result = await response.json();
       console.log("API response:", result);
-      if(result){
-        navigate("/meal/"+result);
+  
+      // Check and extract the group (e.g., "Egg") from the first item in the response
+      if (result.results && result.results.length > 0) {
+        const firstItem = result.results[0]; // Get the first result
+        const group = firstItem.group; // Extract the group (e.g., "Egg")
+  
+        console.log(`Group: ${group}`);
+  
+        // Pass the group to the Meals component via URL
+        navigate(`/meal/${group}`); // Now navigate with the group value (e.g., /meal/Egg)
+      } else {
+        console.warn("No valid items found in API response.");
       }
-      
   
     } catch (error) {
       console.error("Error sending image to Food Recognition API:", error);
     }
   };
+  
+  
   
 
   return (
