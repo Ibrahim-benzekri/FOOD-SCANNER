@@ -30,157 +30,78 @@ const Scanner = () => {
   
 
   const stopCamera = () => {
-    const stream = videoRef.current?.srcObject;
+    const stream = videoRef.current.srcObject;
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
       videoRef.current.srcObject = null;
       setIsCameraOn(false);
     }
   };
+  
 
   const takePicture = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
-
+  
     if (canvas && video) {
       const context = canvas.getContext('2d');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+      const size = 544;
+  
+      // Ajustement pour centrer l'image selon le ratio du flux vidéo
+      const aspectRatio = video.videoWidth / video.videoHeight;
+      let sx = 0, sy = 0, sw = video.videoWidth, sh = video.videoHeight;
+  
+      if (aspectRatio > 1) { // Paysage
+        sw = sh * aspectRatio;
+        sx = (video.videoWidth - sw) / 2;
+      } else { // Portrait
+        sh = sw / aspectRatio;
+        sy = (video.videoHeight - sh) / 2;
+      }
+  
+      canvas.width = size;
+      canvas.height = size;
+  
+      context.drawImage(video, sx, sy, sw, sh, 0, 0, size, size);
+  
       canvas.toBlob((blob) => {
         setImageData(blob);
       }, 'image/jpeg');
-      
+  
       stopCamera();
     }
   };
-
-  const sendImageToAPI = async () => {
-    if (!imageData) {
-        console.error("No image data available.");
-        return;
-    }
-
-    const apiKey = "1d97db56d7614dc8848b50fd19f15f17"; 
-    const apiEndpoint = "https://api.spoonacular.com/food/images/classify";
-
-    const formData = new FormData();
-    formData.append('file', imageData, 'snapshot.jpg'); 
-
-    try {
-        const response = await fetch(`${apiEndpoint}?apiKey=${apiKey}`, {
-            method: 'POST',
-            body: formData,
-        });
-
-        if (!response.ok) {
-            throw new Error(`API request failed with status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log("API response:", result);
-
-        
-        console.log(`Category: ${result.category}, Probability: ${result.probability}`);
-    } catch (error) {
-        console.error("Error sending image to Spoonacular API:", error);
-    }
-};
-
   
 
-  /* Envoyer l'image à Clarifai pour détecter l'aliment et envoyer l'aliment à spoonacular
-  pour les recettes
   const sendImageToAPI = async () => {
     if (!imageData) {
-      alert("Aucune image n'a été prise.");
+      console.error("No image data available.");
       return;
     }
-
-    const formData = new FormData();
-    formData.append('file', imageData, 'food-image.jpg');
-
+  
+    const apiEndpoint = 'https://api-2445582032290.production.gw.apicast.io/v1/foodrecognition?user_key=d24d992ce806268512d48e62a2aa5195';
+  
     try {
-      const response = await fetch('https://api.clarifai.com/v2/models/food-item-recognition/outputs', {
+      const formData = new FormData();
+      formData.append('media', imageData, 'snapshot.jpeg');
+  
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
-        headers: {
-          'Authorization': '0a329d795df34782b0bb322295896890', // Remplacez par votre clé API Clarifai
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          inputs: [
-            {
-              data: {
-                image: {
-                  base64: await convertBlobToBase64(imageData),
-                },
-              },
-            },
-          ],
-        }),
+        body: formData,
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Données Clarifai :", data);
-
-        if (data.outputs && data.outputs[0].data.concepts.length > 0) {
-          const foodName = data.outputs[0].data.concepts[0].name; // Nom de l'aliment détecté
-          console.log(`Aliment détecté : ${foodName}`);
-          fetchRecipesFromSpoonacular(foodName);
-        } else {
-          alert("Impossible de détecter un aliment dans l'image.");
-        }
-      } else {
-        console.error('Erreur lors de la détection des aliments');
-        alert("Impossible de détecter un aliment.");
+  
+      if (!response.ok) {
+        throw new Error(`API request failed with status: ${response.status}`);
       }
-    } catch (err) {
-      console.error("Erreur lors de la détection des aliments :", err);
-      alert("Échec de l'envoi de l'image. Veuillez réessayer.");
+  
+      const result = await response.json();
+      console.log("API response:", result);
+  
+    } catch (error) {
+      console.error("Error sending image to Food Recognition API:", error);
     }
   };
-
-  // Convertir un Blob en Base64
-  const convertBlobToBase64 = (blob) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result.split(',')[1]); // On récupère uniquement la base64
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(blob);
-    });
-  };
-
-  // Rechercher des recettes sur Spoonacular
-  const fetchRecipesFromSpoonacular = async (foodName) => {
-    try {
-      const response = await fetch(
-        `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${foodName}&apiKey=YOUR_SPOONACULAR_API_KEY` // Remplacez par votre clé API Spoonacular
-      );
-
-      if (response.ok) {
-        const recipes = await response.json();
-        console.log("Recettes trouvées :", recipes);
-        if (recipes.length > 0) {
-          alert(
-            `Recettes pour ${foodName} :\n${recipes.map((recipe) => recipe.title).join('\n')}`
-          );
-        } else {
-          alert("Aucune recette trouvée pour cet aliment.");
-        }
-      } else {
-        console.error('Erreur lors de la récupération des recettes');
-        alert("Impossible de récupérer des recettes.");
-      }
-    } catch (err) {
-      console.error("Erreur lors de la récupération des recettes :", err);
-      alert("Échec de la récupération des recettes. Veuillez réessayer.");
-    }
-  };
-  */
-
-
+  
 
   return (
     <section id="scanner" className="w-screen min-h-screen">
@@ -221,4 +142,3 @@ const Scanner = () => {
 };
 
 export default Scanner;
-
