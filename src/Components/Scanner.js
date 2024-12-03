@@ -99,7 +99,7 @@ const Scanner = () => {
   
       // Check and extract the group (e.g., "Egg") from the first item in the response
       if (result.results && result.results.length > 0) {
-        const firstItem = result.results[1]; // Get the first result
+        const firstItem = result.results[0]; // Get the first result
         const group = firstItem.group; // Extract the group (e.g., "Egg")
   
         console.log(`Group: ${group}`);
